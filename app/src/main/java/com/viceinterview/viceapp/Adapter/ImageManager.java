@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -50,6 +51,7 @@ public class ImageManager {
     private ImageQueue imageQueue;
 
     Thread imageLoaderThread;
+    Context context;
 
     public void resetImageQueue(){
         this.imageQueue.reset();
@@ -57,7 +59,7 @@ public class ImageManager {
 
     public ImageManager(Context context) {
         imageLoaderThread = new Thread(new ImageQueueManager());
-
+        this.context = context;
         imageQueue = new ImageQueue();
 // Make background thread low priority, to avoid affecting UI performance
         imageLoaderThread.setPriority(Thread.NORM_PRIORITY-1);
@@ -81,8 +83,6 @@ public class ImageManager {
 
         if(imageMap.containsKey(url)) {
             imageView.setImageBitmap((Bitmap) imageMap.get(url));
-
-
         }
         else{
             queueImage(url, imageView);
@@ -254,27 +254,9 @@ public class ImageManager {
             Log.d("...........", "BidmapDisplayer");
             if(bitmap != null) {
                 Log.d("........", "BitmapDisplayer, setBitmap");
-
-                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-                anim.setDuration(1200);
-                anim.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        imageView.setAlpha(0f);
-                        imageView.setImageBitmap(bitmap);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        imageView.setAlpha(1f);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                imageView.startAnimation(anim);
+                imageView.setImageBitmap(bitmap);
+                Animation myFadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fadein);
+                imageView.startAnimation(myFadeInAnimation);
             }
         }
     }
