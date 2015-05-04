@@ -1,13 +1,22 @@
 package com.viceinterview.viceapp;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 
 import com.etsy.android.grid.StaggeredGridView;
 import com.google.gson.Gson;
@@ -15,11 +24,13 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.viceinterview.viceapp.Adapter.DataItem;
 import com.viceinterview.viceapp.Adapter.EndlessScrollListener;
 import com.viceinterview.viceapp.Adapter.myArrayAdapter;
+import com.viceinterview.viceapp.Display.ImageActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -64,6 +75,36 @@ public class MainActivity extends Activity {
         this.service = restAdapter.create(ClientInterface.class);
 
         gridView = (StaggeredGridView) findViewById(R.id.grid_view);
+
+        final Activity activity = this;
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+                    ImageView image = (ImageView) view.findViewById(R.id.image);
+
+                    Bitmap bitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
+                    if (bitmap == null) {
+                        return;
+                    }
+
+                    String transitionName = "sharedElement";
+                    image.setTransitionName(transitionName);
+                    getWindow().setSharedElementExitTransition(new Explode());
+
+                    Log.d("...........", "transition name from image: " + image.getTransitionName());
+
+                    Intent intent = new Intent(activity, ImageActivity.class);
+                    ByteArrayOutputStream bs = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 50, bs);
+                    intent.putExtra("byteArray", bs.toByteArray());
+
+                    ActivityOptions options = ActivityOptions
+                            .makeSceneTransitionAnimation(activity, image, transitionName);
+                    startActivity(intent, options.toBundle());
+                }
+            }
+        });
 
         this.scrollLoadListener = new EndlessScrollListener() {
             @Override
