@@ -1,13 +1,10 @@
 package com.viceinterview.viceapp.Display;
 
 import android.app.Fragment;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.UserManager;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -15,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -25,29 +23,13 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.viceinterview.viceapp.Adapter.myArrayAdapter;
 import com.viceinterview.viceapp.ClientInterface;
 import com.viceinterview.viceapp.MainActivity;
 import com.viceinterview.viceapp.R;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import retrofit.Callback;
-import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
 
 /**
  * Created by oliverbud on 5/2/15.
@@ -81,7 +63,7 @@ public class searchBarFragment extends Fragment {
         historyList = (CardView)view.findViewById(R.id.historyListCard);
 
         card.setCardElevation(20);
-        historyList.setCardElevation(3);
+        historyList.setCardElevation(10);
 
 
         button = (Button)view.findViewById(R.id.button);
@@ -125,21 +107,21 @@ public class searchBarFragment extends Fragment {
 
     int mTargetHeight;
 
-    boolean isExpanded = false;
+    public boolean isExpanded = false;
 
     public void displaySearchHistory(){
         if (!isExpanded) {
-            expand(historyList);
-            isExpanded = true;
+            expand();
         }
         else{
-            contract(historyList);
-            isExpanded = false;
+            contract();
+
         }
     }
 
-    public void expand(final View view)
+    public void expand()
     {
+        final View view = historyList;
         mTargetHeight = 700;
         view.getLayoutParams().height = 0;
 
@@ -163,11 +145,15 @@ public class searchBarFragment extends Fragment {
         a.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
+                Animation rotateAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_clockwise_down);
+                rotateAnimation.setFillAfter(true);
+                button.startAnimation(rotateAnimation);
 
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
+                isExpanded = true;
                 searchHistory = new ListView(getActivity());
                 CardView.LayoutParams slp = new CardView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.BOTTOM);
                 int lstMarginTop = (searchEditText.getHeight() + 15);
@@ -196,7 +182,8 @@ public class searchBarFragment extends Fragment {
                 });
 
                 historyList.addView(searchHistory, slp);
-
+                Animation myFadeInAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fadein);
+                searchHistory.startAnimation(myFadeInAnimation);
             }
 
             @Override
@@ -207,8 +194,9 @@ public class searchBarFragment extends Fragment {
         view.startAnimation(a);
     }
 
-    public void contract(final View view)
+    public void contract()
     {
+        final View view = historyList;
         mTargetHeight = 700;
         view.getLayoutParams().height = FrameLayout.LayoutParams.WRAP_CONTENT;
 
@@ -231,13 +219,16 @@ public class searchBarFragment extends Fragment {
         a.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-
+                Animation rotateAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_clockwise_up);
+                rotateAnimation.setFillAfter(true);
+                button.startAnimation(rotateAnimation);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
                 historyList.removeView(searchHistory);
                 searchHistory = null;
+                isExpanded = false;
             }
 
             @Override

@@ -2,6 +2,7 @@ package com.viceinterview.viceapp;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -15,7 +16,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.etsy.android.grid.StaggeredGridView;
@@ -25,6 +28,7 @@ import com.viceinterview.viceapp.Adapter.DataItem;
 import com.viceinterview.viceapp.Adapter.EndlessScrollListener;
 import com.viceinterview.viceapp.Adapter.myArrayAdapter;
 import com.viceinterview.viceapp.Display.ImageActivity;
+import com.viceinterview.viceapp.Display.searchBarFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +52,7 @@ public class MainActivity extends Activity {
     ArrayList<DataItem> list;
     StaggeredGridView gridView;
 
+
     private ClientInterface service;
 
     public String searchString;
@@ -60,7 +65,9 @@ public class MainActivity extends Activity {
 
     int rSize = 8;
     int initIncrements = 3;
-
+    FragmentManager fm;
+    searchBarFragment sbf;
+    FrameLayout activityFrame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,14 +81,38 @@ public class MainActivity extends Activity {
                 .build();
         this.service = restAdapter.create(ClientInterface.class);
 
+        activityFrame = (FrameLayout) findViewById(R.id.activityFrame);
+        activityFrame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (sbf.isExpanded){
+                    sbf.contract();
+                }
+            }
+        });
+
         gridView = (StaggeredGridView) findViewById(R.id.grid_view);
+        fm = getFragmentManager();
+        sbf = (searchBarFragment)fm.findFragmentById(R.id.searchFragment);
+
 
         final Activity activity = this;
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                if (sbf.isExpanded){
+                    sbf.contract();
+                    return;
+                }
+
                 if(android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
                     ImageView image = (ImageView) view.findViewById(R.id.image);
+
+                    if (((BitmapDrawable) image.getDrawable()) == null){
+                        return;
+                    }
 
                     Bitmap bitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
                     if (bitmap == null) {
@@ -107,6 +138,13 @@ public class MainActivity extends Activity {
         });
 
         this.scrollLoadListener = new EndlessScrollListener() {
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+
+            }
+
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
 
