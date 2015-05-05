@@ -12,7 +12,7 @@ Lazy loading: implemented lazy loading so that images will load into the grid af
 
 endOfScroll Loader: implemented a way for a scroll listener to load more pages of content from google when user has scrolled to bottom of grid. well add more images dynamically
 
-Staggered grid View: I used Etsy's open source gridView for handling different size images in the grid. Useful b/x it handles livecycle methods that the regular gridView wont do as well. also it allows for the colum rows to be independent of eachother
+Staggered grid View: I used Etsy's open source gridView (https://github.com/etsy/AndroidStaggeredGrid) for handling different size images in the grid. Useful b/x it handles livecycle methods that the regular gridView wont do as well. also it allows for the colum rows to be independent of eachother
 
 ImageViewer: if you click on an image it will animate from inside the grid view to a page of its own. you can navigate back from there to the grid of images
 
