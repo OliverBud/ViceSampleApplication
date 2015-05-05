@@ -82,14 +82,7 @@ public class MainActivity extends Activity {
         this.service = restAdapter.create(ClientInterface.class);
 
         activityFrame = (FrameLayout) findViewById(R.id.activityFrame);
-        activityFrame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sbf.isExpanded){
-                    sbf.contract();
-                }
-            }
-        });
+
 
         gridView = (StaggeredGridView) findViewById(R.id.grid_view);
         fm = getFragmentManager();
@@ -231,12 +224,16 @@ public class MainActivity extends Activity {
     }
 
     public void searchForText(final String searchText){
-
+        if (searchText.toLowerCase().equals(this.searchString)){
+            return;
+        }
         clearList();
+
         this.searchString = searchText;
         if (!searchHistory.contains(searchText)) {
             searchHistory.add(searchText);
         }
+
 
         count = 0;
 
