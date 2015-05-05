@@ -1,6 +1,7 @@
 package com.viceinterview.viceapp.Display;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -171,7 +173,9 @@ public class searchBarFragment extends Fragment {
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-
+                                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+                                        Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(searchEditText.getWindowToken(), 0);
                                 ((MainActivity) getActivity()).searchForText(searchText.toLowerCase());
 
                             }
